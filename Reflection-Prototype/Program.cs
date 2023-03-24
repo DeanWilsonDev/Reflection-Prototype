@@ -7,14 +7,15 @@ var app = builder.Build();
 app.MapGet("/", () => "Hello World!");
 var services = new ServiceCollection();
 var assemblies = Assembly.GetExecutingAssembly();
-var targetType = typeof(IMessageHandler<>);
+var targetType = typeof(IMessagable<,>);
 
 var registrations = assemblies.GetTypes()
   .Where(x => x is {IsAbstract: false, IsInterface: false})
   .SelectMany(type => type.GetInterfaces()
-    .Where(interfaceType => interfaceType.IsGenericType
-                            && interfaceType.GetGenericTypeDefinition()
-                            == targetType
+    .Where(
+      interfaceType => interfaceType.IsGenericType
+                       && interfaceType.GetGenericTypeDefinition()
+                       == targetType
     )
     .Select(service => new {service, type}));
 
@@ -24,20 +25,26 @@ foreach (var reg in registrations)
 
   var typeArgument = reg.service.GetGenericArguments();
 
-  if (typeArgument[0].IsGenericTypeParameter) continue;
-
-  var messageHandlerFactoryType =
-    typeof(MessageHandlerFactory<>).MakeGenericType(typeArgument[0]);
+  foreach (var type in typeArgument)
+  {
+    Console.WriteLine($"type {type}");
+  }
   
+  if (typeArgument[0]
+      .IsGenericTypeParameter) continue;
+
+  var messageHandlerFactoryType = typeof(MessageHandlerFactory<,>).MakeGenericType(typeArgument);
+
   Console.WriteLine($"Created Generic type: {messageHandlerFactoryType}\n");
 
   dynamic messageHandlerFactory =
     Activator.CreateInstance(messageHandlerFactoryType);
 
   if (messageHandlerFactory == null) continue;
-  
-  var genericInterfaceType = typeof(IMessageHandlerFactory<>).MakeGenericType(typeArgument[0]);
-  
+
+  var genericInterfaceType =
+    typeof(IMessageHandlerFactory<,>).MakeGenericType(typeArgument);
+
   services.AddScoped(reg.type, sp =>
   {
     var factory = (dynamic) sp.GetService(genericInterfaceType)!;

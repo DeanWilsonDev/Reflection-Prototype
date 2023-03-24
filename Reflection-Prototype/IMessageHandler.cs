@@ -1,6 +1,3 @@
 namespace Reflection_Prototype;
 
-public interface IMessageHandler<T>
-{
-  
-}
+public interface IMessageHandler<TRequest, TResponse> { }

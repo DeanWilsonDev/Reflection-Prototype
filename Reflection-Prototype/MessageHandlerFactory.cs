@@ -1,9 +1,9 @@
 namespace Reflection_Prototype;
 
-public class MessageHandlerFactory<T> : IMessageHandlerFactory<T>
+public class MessageHandlerFactory<TRequest, TResponse> : IMessageHandlerFactory<TRequest, TResponse>
 {
-  public IMessageHandler<T> Create()
+  public IMessageHandler<TRequest, TResponse> Create()
   {
-    return new MessageHandlerBase<T>();
+    return new MessageHandlerBase<TRequest, TResponse>();
   }
 }

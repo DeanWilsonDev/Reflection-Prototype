@@ -1,7 +1,7 @@
 namespace Reflection_Prototype;
 
-public interface IMessageHandlerFactory<T>
+public interface IMessageHandlerFactory<TRequest, TResponse>
 {
-  public IMessageHandler<T> Create();
+  public IMessageHandler<TRequest, TResponse> Create();
   
 }
